@@ -7,7 +7,7 @@ A list of vanilla buildings made available by The Indie Stone for the mapping co
 
 # Animation
 ## Mystery's rig
-A rig created by Mystery.
+A rig created by Mystery, provided by them.
 
 Author links:
 - [Steam](https://steamcommunity.com/id/Zmilez)
