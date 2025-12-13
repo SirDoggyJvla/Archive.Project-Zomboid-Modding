@@ -1,0 +1,8 @@
+Print_Text_EN = {
+    Print_Text_testmod:Village_title= "TestMod: Village",
+    Print_Text_testmod:Village_info= "BirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirbBirb",
+
+    Print_Text_testmod:BirdMilk_title= "TestMod: BirdMilk",
+    Print_Text_testmod:BirdMilk_info= "7/7/93 @ 8PM\n\nMilk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk",
+}
+

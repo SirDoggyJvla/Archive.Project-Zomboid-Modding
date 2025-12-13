@@ -1,0 +1,26 @@
+-- Works:
+CharacterTrait.register("testmod:nimblefingers")
+CharacterProfession.register("testmod:thief")
+ItemTag.register("testmod:bobbypin")
+Brochure.register("testmod:Village")
+Flier.register("testmod:BirdMilk")
+ItemBodyLocation.register("testmod:MiddleFinger")
+ItemType.register("testmod:gamedev")
+MoodleType.register("testmod:Happy")
+WeaponCategory.register("testmod:birb")
+Newspaper.register("testmod:BirdNews", List.of("BirdKnews_July30", "BirdKnews_July2"))
+
+local item_key = ItemKey.new("bullets_666", ItemType.NORMAL)
+AmmoType.register("testmod:duck_bullets", item_key)
+
+-- Not used / Not need / Not exposed --
+--OldNewspaper.register("testmod:oldbluejay")
+--PetName.register("testmod:sima")
+--Photo.register("testmod:birb")
+--Job.register("testmod:president")
+--MagazineSubject.register("testmod:beautySubj")
+--Magazine.register("testmod:beauty", 1998, MagazineSubject.MUSIC, MagazineSubject.get(ResourceLocation.of("testmod:beautySubj")))
+--Business.register("testmod:CoolBirdCorp")
+--ComicBook.register("testmod:BirdHero", 256, false)
+--BookSubject.register("testmod:birdart")
+--Book.register("testmod:birdbook", CoverType.BOTH, BookSubject.get(ResourceLocation.of("testmod:birdart")), BookSubject.ART)

@@ -1,0 +1,2 @@
+PrintMediaDefinitions.MiscDetails["testmod:Village"] = { location1 = { { x1 = 11650, y1 = 8330, x2 = 11709, y2 = 8389,}, }, }
+PrintMediaDefinitions.MiscDetails["testmod:BirdMilk"] = { location1 = { { x1 = 7338, y1 = 8278, x2 = 7438, y2= 8402,},},}

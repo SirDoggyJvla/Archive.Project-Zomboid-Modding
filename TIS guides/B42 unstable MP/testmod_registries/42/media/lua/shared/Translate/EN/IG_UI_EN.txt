@@ -1,0 +1,5 @@
+IGUI_EN = {
+	IGUI_perks_Lockpicking = "Lockpicking",
+    IGUI_perks_Lockpicking_Description = "Lockpicking skill!",
+	IGUI_perks_Miscellaneous = "Miscellaneous",
+}

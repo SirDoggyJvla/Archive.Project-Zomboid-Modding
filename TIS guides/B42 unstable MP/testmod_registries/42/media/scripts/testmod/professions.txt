@@ -1,0 +1,12 @@
+module TestMod
+{
+    character_profession_definition testmod:thief
+    {
+        CharacterProfession = testmod:thief,
+        Cost = 2,
+        UIName = UI_prof_Thief,
+        IconPathName = profession_burglar2,
+        XPBoosts = Nimble=3;Sneak=2;Lightfoot=1;Lockpicking=2,
+        GrantedTraits = testmod:nimblefingers,
+    }
+}

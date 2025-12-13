@@ -1,0 +1,4 @@
+Recipe_EN = {
+    Recipe_CreateBobbyPin = "Create bobby pin",
+    Recipe_CreateBobbyPin2 = "Create bobby pin",
+}

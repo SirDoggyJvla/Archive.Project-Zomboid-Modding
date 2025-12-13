@@ -1,0 +1,41 @@
+module TestMod
+{
+    imports
+	{
+		Base
+	}
+	
+	craftRecipe CreateBobbyPin
+	{
+        timedAction = Making,
+		Time = 40,
+		Tags = InHandCraft;CanBeDoneInDark,
+		needTobeLearn = true,
+		inputs
+		{
+            item 1 tags[base:screwdriver] mode:keep flags[MayDegradeLight;Prop1],
+            item 1 [Base.Paperclip],
+		}
+		outputs
+		{
+			item 1 TestMod.HandmadeBobbyPin,
+		}
+	}
+	
+	craftRecipe CreateBobbyPin2
+	{
+        timedAction = Making,
+		Time = 120,
+		Tags = InHandCraft;CanBeDoneInDark,
+		needTobeLearn = true,
+		inputs
+		{
+            item 1 tags[base:screwdriver] mode:keep flags[MayDegradeLight;Prop1],
+            item 2 [Base.Wire],
+		}
+		outputs
+		{
+			item 10 TestMod.HandmadeBobbyPin,
+		}
+	}
+}

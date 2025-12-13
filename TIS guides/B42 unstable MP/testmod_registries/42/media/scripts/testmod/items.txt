@@ -1,0 +1,185 @@
+module TestMod
+{
+	item BobbyPin
+	{
+		Weight = 0.01,
+		ItemType = base:normal,
+		Icon = BobbyPin,
+		Tags = testmod:bobbypin,
+		Tooltip = Tooltip_TestMod_BobbyPin,
+		WorldStaticModel = Paperclip,
+	}
+
+	item HandmadeBobbyPin
+	{
+		Weight = 0.01,
+		ItemType = base:normal,
+		Icon = HandmadeBobbyPin,
+		Tags = testmod:bobbypin,
+		Tooltip = Tooltip_TestMod_BobbyPin,
+		WorldStaticModel = Paperclip,
+	}
+
+	item LockpickingMag
+	{
+		Weight = 0.1,
+		ItemType = base:literature,
+		Icon = lockpicking_magazine,
+		TeachedRecipes = Lockpicking;CreateBobbyPin;CreateBobbyPin2,
+		StaticModel = Magazine,
+		WorldStaticModel = MagazineGround,
+		Tooltip = Tooltip_TestMod_LockpickingMag,
+	}
+
+	item AlarmMag
+	{
+		Weight = 0.1,
+		ItemType = base:literature,
+		Icon = alarm_magazine,
+		TeachedRecipes = AlarmCheck,
+		StaticModel = Magazine,
+		WorldStaticModel = MagazineGround,
+		Tooltip = Tooltip_TestMod_AlarmMag,
+	}
+
+    item BirdRifle
+    {
+        DisplayCategory = Weapon,
+        ItemType = base:weapon,
+        Weight = 1.0,
+        Icon = AssaultRifle,
+        AimingPerkCritModifier = 6,
+        AimingPerkHitChanceModifier = 4,
+        AimingPerkMinAngleModifier = 0.01,
+        AimingPerkRangeModifier = 0,
+        AimReleaseSound = M16AimRelease,
+        Aimingtime = 40,
+        AmmoBox = TestMod.DuckBulletsBox,
+        AmmoType = testmod:duck_bullets,
+        AttachmentType = Rifle,
+        BreakSound = M16Break,
+        BringToBearSound = M16BringToBear,
+        ClickSound = M16Jam,
+        ConditionLowerChanceOneIn = 200,
+        ConditionMax = 10,
+        CritDmgMultiplier = 4.0,
+        CriticalChance = 20.0,
+        DoorDamage = 5,
+        DropSound = M16Drop,
+        EjectAmmoSound = M16EjectAmmo,
+        EjectAmmoStartSound = M16EjectAmmoStart,
+        EjectAmmoStopSound = M16EjectAmmoStop,
+        EquipSound = M16Equip,
+        FireMode = Auto,
+        FireModePossibilities = Auto/Single,
+        CyclicRateMultiplier = 1.0,
+        HitChance = 50,
+        HitSound = BulletImpact,
+        IdleAnim = Idle_Weapon2,
+        ImpactSound = null,
+        InsertAmmoSound = M16InsertAmmo,
+        InsertAmmoStartSound = M16InsertAmmoStart,
+        InsertAmmoStopSound = M16InsertAmmoStop,
+        IsAimedFirearm = true,
+        JamGunChance = 1,
+        KnockBackOnNoDeath = true,
+        KnockdownMod = 4.0,
+        MagazineType = TestMod.DuckGunClip,
+        MaxAmmo = 30,
+        MaxDamage = 1.6,
+        MaxHitcount = 2,
+        MaxRange = 30.0,
+        MinSightRange = 2,
+        MaxSightRange = 10.0,
+        MetalValue = 45.0,
+        MinAngle = 0.965,
+        MinDamage = 1.0,
+        MinRange = 0.61,
+        MinimumSwingtime = 0.5,
+        ModelWeaponPart = TritiumSights IronSight scope2 scope2,
+        ModelWeaponPart = Laser Laser laser laser,
+        ModelWeaponPart = RecoilPad RecoilPad recoilpad recoilpad,
+        ModelWeaponPart = RedDot RedDot reddot reddot,
+        ModelWeaponPart = x2Scope x2Scope scope scope,
+        ModelWeaponPart = x4Scope x4Scope scope scope,
+        MultipleHitConditionAffected = false,
+        MuzzleFlashModelKey = muzzle_flash_assault_rifle,
+        NPCSoundBoost = 1.5,
+        PiercingBullets = true,
+        Projectilecount = 1,
+        PushBackMod = 0.3,
+        RackSound = M16Rack,
+        Ranged = true,
+        RecoilDelay = 15,
+        Reloadtime = 25,
+        RequiresEquippedBothHands = true,
+        RunAnim = Run_Weapon2,
+        ShellFallSound = M16CartridgeFall,
+        SoundGain = 2.0,
+        SoundRadius = 150,
+        SoundVolume = 35,
+        SplatBloodOnNoDeath = true,
+        SplatNumber = 3,
+        SplatSize = 3,
+        StopPower = 2.0,
+        SubCategory = Firearm,
+        SwingAmountBeforeImpact = 0.0,
+        SwingAnim = Rifle,
+        SwingSound = M16Shoot,
+        Swingtime = 0.5,
+        ToHitModifier = 1.5,
+        TwoHandWeapon = true,
+        UnequipSound = M16UnEquip,
+        UseEndurance = false,
+        WeaponReloadType = boltaction,
+        WeaponSprite = AssaultRifle,
+        Tags = base:hasmetal;base:firearm,
+    }
+
+    item DuckBulletsBox
+    {
+        DisplayCategory = Ammo,
+        ItemType = base:normal,
+        Weight = 1.2,
+        Icon = RifleAmmo308,
+        AlwaysWelcomeGift = true,
+        MetalValue = 40.0,
+        PlaceMultipleSound = BoxOfRoundsPlaceAll,
+        PlaceOneSound = BoxOfRoundsPlaceOne,
+        StaticModel = RifleAmmoBox,
+        WorldStaticModel = RifleAmmoBox,
+        DoubleClickRecipe = OpenBoxOfBullets50,
+    }
+
+    item DuckGunClip
+    {
+        DisplayCategory = Ammo,
+        ItemType = base:normal,
+        Weight = 0.2,
+        Icon = m16clip,
+        AmmoType = testmod:duck_bullets,
+        CanStack = false,
+        GunType = TestMod.BirdRifle,
+        MaxAmmo = 30,
+        StaticModel = GunMagazine,
+        WorldStaticModel = gun_magazine_new,
+        Tags = base:hasmetal;base:riflemagazine,
+    }
+}
+
+module Base {
+    
+    item bullets_666
+    {
+        DisplayCategory = Ammo,
+        ItemType = base:normal,
+        Weight = 0.035,
+        Icon = RifleAmmo308loose,
+        AlwaysWelcomeGift = true,
+        count = 5,
+        MetalValue = 1.0,
+        WorldStaticModel = RifleAmmo,
+        Tags = base:ammo,
+    }
+
+}

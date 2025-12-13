@@ -1,0 +1,14 @@
+module TestMod
+{
+    character_trait_definition testmod:nimblefingers
+    {
+        IsProfessionTrait = false,
+        DisabledInMultiplayer = false,
+        CharacterTrait = testmod:nimblefingers,
+        Cost = 3,
+        UIName = UI_trait_nimblefingers,
+        UIDescription = UI_trait_nimblefingersDesc,
+        XPBoosts = Lockpicking=2,
+        GrantedRecipes = Lockpicking;AlarmCheck;CreateBobbyPin;CreateBobbyPin2,
+    }
+}

@@ -1,0 +1,5 @@
+UI_EN = {
+    UI_prof_Thief = "Thief",
+    UI_trait_nimblefingers = "Locksmith",
+    UI_trait_nimblefingersDesc = "Starts with knowledge of picking/breaking locks <br> and how to check vehicle/building for alarms",
+}
