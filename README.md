@@ -19,6 +19,14 @@ Author links:
 - [Steam](https://steamcommunity.com/id/Zmilez)
 - Discord: spigot (171595944096169984)
 
+## Nik's rig
+[File](Animation/Nik's%20Rig/Nik_Rig.blend) -
+A rig created by Nik, provided by them.
+
+Author links:
+- [Steam](https://steamcommunity.com/profiles/76561198046849708)
+- Discord: realnik10 (286889717985705986)
+
 # Lua (API)
 ## ItemSpawningExample.lua
 [File](Lua%20(API)/ItemSpawningExample.lua) -
@@ -37,3 +45,7 @@ Script to dump the distribution content in the `console.txt` file. [Oldest uploa
 ## ReadWriteFiles.lua
 [File](/Lua%20(API)/ReadWriteFiles.lua)-
 Functions to read from and write to files. [Oldest upload source](https://discord.com/channels/136501320340209664/232196827577974784/931744932656451645)
+
+# TIS Guides
+## B42 unstable MP
+More information [here](https://pzwiki.net/wiki/TIS_Modding_Guides#Build_42_MP_unstable_release)
