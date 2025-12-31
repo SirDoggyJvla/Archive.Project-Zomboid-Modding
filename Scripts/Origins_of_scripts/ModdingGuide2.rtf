@@ -1,0 +1,1262 @@
+{\rtf1\ansi\ansicpg1252\deff0\deftab709{\fonttbl{\f0\fnil\fcharset0 Arial;}{\f1\fnil\fcharset0 Courier;}{\f2\froman\fprq2\fcharset0 Times New Roman;}}
+{\*\generator Msftedit 5.41.21.2509;}\viewkind4\uc1\pard\lang2057\b\fs28 Syntax\fs20\par
+\b0\par
+The scripts use a loosely C/ C++ / C# style syntax. Some key points:\par
+\par
+\f1 /* anything between these is a comment and will be ignored when the script is loaded.  */\par
+\par
+objecttype MyObjectName\par
+\{\par
+\tab things about my object\par
+\}\f2\par
+\b\f0\par
+\b0 This is the general syntax of defining objects in your script. First is a lower-case specifier of what time of script object it is. From a character to a waypoint (location on the map) to a trigger or script. Next is the name of the object that you will use to refer to it in your scripts.\par
+\par
+Then you have an open and close braces, inside which all the details of the object in question are placed.\par
+\par
+Almost all objects use commas to seperate the different settings or properties of the object, for example:\par
+\par
+\f1 waypoint SomeLocation\par
+\{\par
+\tab 10, 20, 0\par
+\}\f2\par
+\b\f0\par
+\b0 This is a waypoint specifying a location on the map. It's called 'SomeLocation' and it is with this name you can refer to it in script. Inside the braces are its parameters, which are 10, 20 and 0, and refer to its x, y, z coordinates in tiles within the game map.\par
+\par
+The one exception to the comma seperated properties are the actual scripts themselves. These are a bit more complicated, and are seperated by semi-colons like so:\par
+\par
+\f1 script MyScript\par
+\{\par
+\tab MyCommand();\par
+\tab MyCommand2();\par
+\}\par
+\b\f0\par
+\b0 Scripts can also have conditional statements called 'if' statements. These allow you to have commands that only get processed 'if' the condition is true. \par
+\par
+\f1 script MyScript\par
+\{\par
+\tab MyCommand();\par
+\tab MyCommand2();\par
+\tab if(MyCondition())\par
+\tab\{\par
+\tab\tab MyCommandThatOnlyHappensInCertainCircumstances();\par
+\tab\tab MyCommandThatOnlyHappensInCertainCircumstances2();\par
+\tab\}\par
+\tab MyCommand3();\par
+\}\par
+\b\f0\par
+\b0 In the above example, it will call MyCommand and MyCommand2, then it will look at the condition in the 'if' statement, and if MyCondition is said to be true (it could be a check \b if\b0  the player has an inventory item, or \b if\b0  he is within range of a certain place, or \b if\b0  it is night) then it will allow the code into those sub braces, and process those long MyCommands in there, before leaving the close braces and processing MyCommand3..\par
+\par
+If the condition was false, it would jump past those braces, and process MyCommand3 and carry on from there. \par
+\par
+We will go into more details about scripts later, but these are the basics of the syntax.\par
+\b\par
+\fs28 Modules\fs20\par
+\par
+\b0 Modules are the way you seperate different parts of your story into logical... well, modules. Objects inside a module can only, by default, see things in their own module. This makes it possible for each module to be self-contained and have everything related to a specific quest line, or a specific part of your story, all seperate from others. It's important that all objects are inside a module otherwise they will at best be ignored.\par
+\par
+The game will load in all .txt script files in the story directory when the story is selected. However the actual organization of the files is up to you. You could have 5 files which all contain script for one module, or you could have one file per module, or you could have multiple module definitions within the same file. It's up to you to logically divide up your code into modules to organize it.\par
+\par
+A module is defined like this:\par
+\par
+\f1 module KateAndBaldspot_RaiderIntrusion\par
+\{\par
+\tab /* Other objects go inside here */\par
+\tab script RaiderEnter\par
+\tab\{\par
+\par
+\tab\}\par
+\}\b\par
+\f0\par
+\b0 You can have multiple module sections with the same module name, and their contents will all go in the same module, for example:\par
+\par
+\f1 module KateAndBaldspot_RaiderIntrusion\par
+\{\par
+\tab /* Other objects go inside here */\par
+\tab script RaiderEnter\par
+\tab\{\par
+\par
+\tab\}\par
+\}\b\par
+\b0\par
+/* and later ... */\par
+\b\f0\par
+\b0\f1 module KateAndBaldspot_RaiderIntrusion\par
+\{\par
+\tab script RaiderExit\par
+\tab\{\par
+\par
+\tab\}\par
+\}\b\par
+\f0\par
+\b0 Since they are in the same module, regardless of where they are defined, what file they are defined in, or what is between them, these two scripts are in the same module so can see each other. In the above example though, it would make much more sense for both scripts to be within the module braces like so:\par
+\par
+\f1 module KateAndBaldspot_RaiderIntrusion\par
+\{\par
+\tab /* Other objects go inside here */\par
+\tab script RaiderEnter\par
+\tab\{\par
+\par
+\tab\}\par
+\par
+\tab script RaiderExit\par
+\tab\{\par
+\par
+\tab\}\par
+\}\b\par
+\b0\f0\par
+To access something within a different module, we use '.' after the module name like so:\par
+\par
+\f1 module KateAndBaldspot_RaiderIntrusion\par
+\{\par
+\tab script RaiderExit\par
+\tab\{\par
+\par
+\tab\}\par
+\}\b\par
+\f0\par
+\b0\f1 module KateAndBaldspot_OtherBit\par
+\{\par
+\tab script OtherBit\par
+\tab\{\par
+\tab\tab call KateAndBaldspot_RaiderIntrusion.RaiderExit;\par
+\tab\}\par
+\}\b\par
+\f0\par
+\b0 In the above example, the 'OtherBit' script in the KateAndBaldspot_OtherBit module calls the RaiderExit script in the KateAndBaldspot_RaiderIntrusion module. Since they are in different modules, it needs to use the full name:\par
+\par
+\f1 KateAndBaldspot_RaiderIntrusion.RaiderExit\b\f0\par
+\par
+\b0 ...to be able to access it. This means two modules could share the exact same names of scripts without issue.\par
+\par
+However if an object is in the same module it is referenced in, then you do not have to add the module name, like so:\par
+\par
+\par
+\f1 module KateAndBaldspot_RaiderIntrusion\par
+\{\par
+\tab script RaiderExit\par
+\tab\{\par
+\par
+\tab\}\par
+\par
+\tab script OtherBit\par
+\tab\{\par
+\tab\tab call RaiderExit;\par
+\tab\}\par
+\}\b\par
+\b0\f0\par
+The module name is only needed when accessing a different module to the one you are typing script into. Obviously this is not the ideal situation when you're dealing with things like character names:\b\par
+\par
+\b0\f1 module KateAndBaldspot_RaiderIntrusion\par
+\{\par
+\tab script RaiderConversation\par
+\tab\{\par
+\tab\tab KateAndBaldspot_Characters.Raider.Say("Hello!");\par
+\tab\tab KateAndBaldspot_Characters.Bob.Say("How are you?");\par
+\tab\}\par
+\}\b\f0\par
+\par
+\b0 This would be a bit ungainly to write for entire conversations. As such, we can use 'imports' to allow direct access to another module, like so:\par
+\par
+\f1 module KateAndBaldspot_RaiderIntrusion\par
+\{\par
+\tab imports\par
+\tab\{\par
+\tab\tab KateAndBaldspot_Characters,\par
+\tab\tab KateAndBaldspot_Items\par
+\tab\}\par
+\par
+\tab script RaiderConversation\par
+\tab\{\par
+\tab\tab Raider.Say("Hello!");\par
+\tab\}\par
+\}\b\par
+\f0\par
+\b0 As you can see above, we can add an 'imports' section to a module, and give a list of other modules that we'd like access to directly. That means now we can use 'Raider' that is located in the KateAndBaldspot_Characters module without typing it each time, as if it were located in the module we are working in. Same applies to scripts, or anything else within that module.\par
+\par
+More advanced use of modules allows you to enable / disable them during the game. For example as soon as you shoot the raider, and the following conversation has played out, you could disable the KateAndBaldspot_RaiderIntrusion module, meaning its scripts, triggers and everything else would no longer be available, to avoid any oddness with scenes triggering with the dead raider. With this you can do quick broad cuts to masses of the story that become invalidated due to a chraracter death or whatever, to ensure you don't accidently spawn them in script later when they're supposed to be dead, or whatever. \par
+\par
+Or you could enable / disable modules in a startup script, for example to provide options to players of your story to enable or disable different elements of it like an option file:\par
+\par
+\f1 module MyMod_Options\par
+\{\par
+\tab script Options\par
+\tab\{\par
+\tab\tab /* Set these to true / false to enable or disable \par
+\tab\tab    sections of the story mod. */\par
+\par
+\tab\tab MyMod_RealWorldWeapons.Enabled(true);\par
+\tab\tab MyMod_1000CookingRecipes.Enabled(true);\par
+\tab\tab MyMod_DrunkenGuy.Enabled(true);\par
+\tab\tab MyMod_HospitalSiege.Enabled(true);\par
+\tab\tab MyMod_BikerGang.Enabled(false);\par
+\par
+\tab\}\par
+\par
+\tab trigger OnPostLoadStory\par
+\tab\{\par
+\tab\tab call Options\par
+\tab\}\par
+\}\par
+\f0\par
+(We'll go into details on the other unfamiliar elements of this script later)\par
+\par
+This is particularly of use for 'mega mod' situations where the mod provides many features that some players will not want. If these are stored in their own file you could feasibly write an options dialog launcher or similar to manipulate them.\par
+\par
+Finally, another module 'power tool' is aliases... consider the following:\par
+\par
+\f1 module MyMod_VariationA\par
+\{\par
+\tab script StartScript\par
+\tab\{\par
+\tab\tab /* stuff here... */\par
+\tab\}\par
+\}\b\par
+\f0\par
+\b0\f1 module MyMod_VariationB\par
+\{\par
+\tab script StartScript\par
+\tab\{\par
+\tab\tab /* stuff here... */\par
+\tab\}\par
+\}\b\par
+\f0\par
+\b0\f1 module MyMod_StartUp\par
+\{\par
+\tab script StartScript\par
+\tab\{\par
+\tab\tab SetModuleAlias(ModuleToUse, MyMod_VariationA);\par
+\par
+\tab\tab call ModuleToUse.StartScript;\par
+\par
+\tab\tab SetModuleAlias(ModuleToUse, MyMod_VariationB);\par
+\par
+\tab\tab call ModuleToUse.StartScript;\par
+\tab\}\par
+\}\b\par
+\f0\par
+\b0 This is a little more complex, but by using 'SetModuleAlias' you can specify a name and point that at a module. That module can from then on by referenced by using the alias, and it will point at that module. \par
+\par
+So in the line after setting the 'ModuleToUse' alias to point to MyMod_VariationA, we can call the StartScript with ModuleToUse instead, and it will still access MyMod_VariationA.StartScript.\par
+\par
+The line after, we reset the alias to instead point at VariationB, and then calling the exact same line:\par
+\par
+\f1 call ModuleToUse.StartScript;\b\f0\par
+\par
+\b0 We now call the VariationB script. Imaginitive use of this would allow for multiple modules to share the same basic structure, but with differing events, to allow them to be substituted with eachother to provide massively different gameplay events based on decisions made:\par
+\par
+\f1 module MyMod_FinalMissionPeterAlive\par
+\{\par
+\tab script StartScript\par
+\tab\{\par
+\tab\tab /* stuff here... */\par
+\tab\}\par
+\}\b\par
+\f0\par
+\b0\f1 module MyMod_FinalMissionJackAlive\par
+\{\par
+\tab script StartScript\par
+\tab\{\par
+\tab\tab /* stuff here... */\par
+\tab\}\par
+\}\b\par
+\f0\par
+\b0\f1 module MyMod_Main\par
+\{\par
+\tab script DecideWhichPathToFollow\par
+\tab\{\par
+\tab\tab if(Peter.IsDead())\par
+\tab\tab\{\par
+\tab\tab\tab SetModuleAlias(MyMod_FinalMission, \tab\tab\tab\tab\tab\tab\tab MyMod_FinalMissionJackAlive);\par
+\tab\tab\}\par
+\tab\tab else\par
+\tab\tab\{\par
+\tab\tab\tab SetModuleAlias(MyMod_FinalMission, \tab\tab\tab\tab\tab\tab\tab MyMod_FinalMissionPeterAlive);\par
+\tab\tab\}\par
+\tab\tab call MyMod_FinalMission.StartScript;\par
+\tab\}\par
+\}\b\par
+\f0\par
+\b0 Again, we will explain any unfamiliar elements of this script later. The jist of it is though is that supposing you have a choice to shoot either Peter or Jack at some point in the game. Depending on who you choose, the entire game will branch apart and the 'final mission' is completely different, depending on who you chose.\par
+\par
+It's rather simple to organize this, as you have a seperate module for the mission where Peter is alive, and a seperate module for the mission where Jack is alive. Each module is self sufficient, and has the same 'entry point' which is the 'StartScript' script (though this could be anything, and there could be more than one script both need to share, depending on design)\par
+\par
+While testing the missions you can just call these directly. When they are finished, and time comes to add in the branching point, you can do a test to see who is alive, and set the alias to point at one or the other module depending. Then call the aliased module's StartScript and it will then run the correct story based on your choice.\par
+\par
+Now true in the above example you could just call the scripts directly, and it would be simpler to do so... But your story could feasibly call 10-20 scripts inside the aliased module, and as long as they refer to it by the alias, and all these script names appear inside any alternatives that could be aliased, it becomes an easy task to add more and more of these modules to provide more alternatives to how the game plays out based on that choice, and substitute a whole bunch of scripts/characters/objects with another bunch with a single line of script. \par
+\par
+This is just one of several methods of providing branching gameplay in your story, and is the one more suited to large game changing events like character deaths or fundamental game choices that change how things play out significantly. For more subtle effects (altered conversations etc) and more short term / immediate scripting logic, it is best to use 'script flags' explained later.\b\par
+\par
+\fs28 Object Types\fs20\par
+\par
+\b0 There are various types of object you can define. All of them must be within a module (explained above). Here we list the different object types and their uses.\i\fs24\par
+\par
+Waypoint\par
+\fs20\par
+\i0 One of the simplest types, a waypoint is an x, y, z location on the map, that can be refered to in code. E.g. \par
+\par
+\f1 waypoint InsideTutBedroomDoor\par
+\{\par
+\tab 43, 22, 1 \par
+\}\b\f0\par
+\fs24\par
+\b0\i Room\par
+\i0\fs20\par
+\f1 room TutorialBedroom\par
+\{\par
+\tab 43, 22, 1 \par
+\}\b\f0\par
+\b0\par
+This will specify an interior room. It will select the room that the specified grid tile is inside, so any of the tiles in the tutorial bedroom can be used. As an alternative to this, you can create a 'roomDef' object within the map editor, which provides a visual indicator of the room.\b\fs24\par
+\par
+\b0\i Zone\fs20\par
+\par
+\i0 A 2D rectangle of the map, with no height parameter (the entire height of the map within the rectangle is said to be in the zone)\par
+\par
+These are used to plot out parts of the map for various reasons. E.g.\par
+\par
+\f1 zone TutorialAlarmZombieSpawn\par
+\{\par
+\tab 47, 27,\tab\tab\tab /* Top left */\par
+\tab 53, 29\tab\tab\tab /* Lower right */\par
+\}\b\f0\par
+\par
+\b0 The above is a rectangle zone that zombies will spawn into when the fire alarm is set off in the tutorial.\par
+\par
+\i\fs24 Activatable\fs20\par
+\i0\par
+Static objects in the game world that can be turned on and off. From radios to stoves and so on.\par
+\par
+e.g.\par
+\par
+\f1 activatable TutorialStove\par
+\{\par
+\tab stove, 39, 21, 0\par
+\}\par
+\b\f0\par
+\b0 The above creates a script object called TutorialStove that points to the stove in the tutorial house. The stove exists anyway, this is just how you grab a link to it so you can turn it on or off, or check if it's on or off, from within code. Different activatable objects have different names, so if more than one is present on a tile you can specify, like in this case, you want the 'stove'.\par
+\par
+Once you have defined this, you can do things like:\par
+\par
+\f1 if(TutorialStove.IsActivated())\par
+\{\par
+\par
+\}\b\par
+\f0\par
+\b0 The above conditional if statement will test if the stove is turned on.\b\par
+\par
+\b0\f1 TutorialStove.Toggle();\b\f0\par
+\par
+\b0 The above will turn the stove on if it's off, and off if it's on.\par
+\par
+\i\fs24 Container\fs20\par
+\i0\par
+Static objects in the game that have been specified in the editor as a container. For example a refridgerator has its container parameter set to 'fridge', which means it is highlightable and will open a container window for you to place items in there, or can have items put into it programatically.\par
+\par
+e.g.\par
+\par
+\f1 container TutorialStoveContainer\par
+\{\par
+\tab stove, 39, 21, 0\par
+\}\par
+\b\par
+\f0\par
+\b0 The above will grab a container of type 'stove' at the specified location. In this case it's grabbing the stove from the tutorial house.\par
+\par
+You can then do things like:\par
+\par
+\f1 if(TutorialStoveContainer.HasInventory(PotOfSoup))\par
+\{\par
+\par
+\}\par
+\f0\par
+The above conditional if statement will test if the item is present in the container.\par
+\par
+\f1 TutorialStoveContainer.AddInventory(PotOfSoup);\b\f0\par
+\par
+\b0 The above will add the specified item to the container.\par
+\par
+\f1 TutorialStoveContainer.RemoveInventory(PotOfSoup);\b\f0\par
+\par
+\b0 The above will remove the specified item from the container if it is present.\par
+\b\par
+\b0\i\fs24 Inventory\fs20\par
+\b\i0\par
+\b0 An inventory is a collection of inventory items that can be given to characters when they are created. An example for the raider from the tutorial:\par
+\par
+\f1 inventory RaiderInventory\par
+\{\par
+\tab Shotgun,\par
+\tab BaseballBat,\par
+\tab ShotgunShells=20,\par
+\tab Lighter,\par
+\}\b\par
+\f0\par
+\b0 Items you wish to give more than one of can have an = with the desired number after them. \b\par
+\par
+\b0\i\fs24 Character\fs20\par
+\b\i0\par
+\b0 These specify characters who can be created in the game world. Note that creating the object in script does not actually create the character, but rather acts as a template for the character, and allows you to reference the character once they are created.\par
+\par
+For example the Raider from the tutorial:\par
+\par
+\f1 character Raider\par
+\{\par
+\tab GunNut, Bobby, Collins,\par
+\tab RaiderInventory,\par
+\tab Head2,\par
+\tab Base_Torso,\par
+\tab Base_Legs,\par
+\tab Shirt2,\par
+\tab Trousers1,\par
+\tab Shoes1,\par
+\}\b\f0\par
+\par
+\b0 First is the personality type. For now these are hard coded, and the only available ones are GunNut and Kate. \par
+\par
+Only GunNut is of use, which specifies a hostile aggressive personality who will attempt to kill any 'enemies' (default = just zombies) within range. \par
+\par
+Since the Kate one is used as a 'hack' to provide Kate her unique 'laid down' anims and whatnot it's advised to avoid using this for your characters. In time responsibility of this will be moved into the script, so you can define your own AI behaviours.\b\par
+\par
+\b0 After the personality comes the first and second name of the character.\par
+\par
+The next parameter is the inventory the character should use. See above for details how to specify these.\par
+\par
+Finally is a list of parts that make up the character, first the head, then the torso, then the legs. Finally the three items of clothing the character is wearing. This will automatically add these clothing to their inventory, equipped to the character in the correct slots.\b\par
+\par
+\b0 To create a character within the game world, you need to call the Actualize function within a script:\par
+\par
+\f1 Kate.Actualize(KateInBed);\b\f0\par
+\par
+\b0 The one parameter being the waypoint where you wish the character to be spawned.\b\par
+\par
+\b0\i\fs24 Items\fs20\par
+\b\i0\par
+\b0 You can create any item you like by defining them in the script. The different parameters are way too numerous to mention and it's best looking at the existing items for reference. At a later date we will document all the parameters used, but in most cases they should be relatively self-explanatory.\par
+\par
+An infamous example of a PZ item:\par
+\b\f1\par
+\b0 item Pillow\par
+\{\par
+\tab Type\tab\tab\tab =\tab\tab\tab Normal,\par
+\tab DisplayName\tab\tab =\tab\tab\tab Pillow,\par
+\tab Icon\tab\tab\tab =\tab\tab\tab Pillow,\par
+\tab Weight\tab\tab =\tab\tab\tab 2\par
+\}\b\f0\par
+\par
+\b0 These are the main 'must have' parameters, though there are many more. In this case it's 'type' is Normal (i.e. it's not a weapon or food) its display name that appears in the tooltip, as well as its icon (icons are preceeded with Item_, so it will look for a texture packed into one of the texture packs called Item_Pillow)\par
+\par
+Then finally its weight. \par
+\par
+At the moment the behaviour of the pillow is hard coded, but in the future it will be controlled by script.\b\par
+\par
+\b0\i\fs24 Container Item Distribution\fs20\par
+\b\i0\par
+\b0 These objects are a set of rules governing how items are distributed around the map. An example follows:\par
+\par
+\f1 containeritemdistribution\par
+\{\par
+\tab Room\tab\tab\tab =\tab\tab\tab shopGeneral,\par
+\tab Containers\tab\tab =\tab\tab\tab counter,\par
+\tab Bread\tab\tab\tab =\tab\tab\tab 10-20,\par
+\tab WhiskeyFull\tab\tab =\tab\tab\tab 5-10,\par
+\}\b\f0\par
+\par
+\b0 In the above example, it will find a 'Room' called 'shopGeneral' (rooms are either set up in script as specified above, or as a 'roomDef' object within the game map) and in the shopGeneral rooms it will add between 10-20 bread items and between 5-10 full whiskey bottles into any counter containers it finds in there.\par
+\par
+\i\fs24 Crafting Recipes\fs20\par
+\i0\par
+This is how you specify crafting recipes. The first four parameters are the items that are used in the recipe, and the fifth is the resulting item. The final parameter is the number of seconds required to craft the item (altered by skills).\par
+\f1\par
+recipe SpikedBat\par
+\{\par
+\tab BaseballBat,\par
+\tab Nails,\par
+\tab keep Hammer,\tab\tab\par
+\tab null,\tab\tab\tab\tab\par
+   \par
+\tab BaseballBatNails,\tab\par
+\tab 5.0,\tab\tab\par
+\}\b\par
+\f0\par
+\b0 Note the final source item is 'null'. it's always important there are four entries for the source items, so if you only need three of them, or less, then fill the remaining slots with 'null'.\par
+\par
+If you need to specify that it requires multiple of an item to craft, you can do this:\par
+\par
+\f1 recipe Barricade\par
+\{\par
+\tab Plank=2,\par
+\tab Nails=2,\par
+\tab keep Hammer,\tab\tab\par
+\tab null,\tab\tab\tab\tab\par
+   \par
+\tab Barricade,\tab\par
+\tab 5.0,\tab\tab\par
+\}\par
+\b\f0\par
+\b0 Also note that Hammer is preceeded with 'keep'. This specifies that the item is not used up in the crafting process.\par
+\par
+Finally, if there are interchangeable items that can be used for one of the ingredients, you can specify them like this:\par
+\par
+\f1 recipe Molotov\par
+\{\par
+   WineEmpty/WhiskeyEmpty,\par
+   PetrolCan,\par
+   DishCloth/RippedSheets,\par
+   null,\par
+   \par
+   Molotov,\par
+   3.0\par
+\}\b\par
+\f0\par
+\b0\i\fs24 Trigger / CustomTrigger\fs20\par
+\par
+\i0 An object that will allow you to 'trigger' your scripts on different in-game events. For details, see the \i Triggering Events\i0  section.\par
+\b\par
+\b0\i\fs24 Script\fs20\par
+\par
+\i0 A conversation, a cutscene, or any other sequence of events in the game. Can also be used to create characters, quests, load textures etc. Basically like a C/C++/C#/Java function. For more details see the Scripts section (TODO).\par
+\par
+\i\fs24 Script Flag\fs20\par
+\par
+\i0 A flag or variable that can be set to different values during gameplay, can be used to provide long term game logic to affect how your story plays out given the player's choices or events that befall them. See \i Setting Script Flags\i0  section for more details.\b\par
+\b0\i\fs24\par
+Quest Condition\fs20\par
+\par
+\i0 A set of conditions that specify if a quest is complete or not. See the \i Quests \i0 section for more details.\b\par
+\par
+\fs28 Triggering Events\b0\par
+\fs20\par
+Triggers are entry points into your script. They are used to trigger scripts on various conditions to allow you to respond to events, or create your own. They come in two flavours: 'triggers' and 'customtriggers'. \par
+\par
+\i\fs24 Triggers\fs20\par
+\i0\par
+Triggers are in-built game events you can trigger your scripts on. For example the 'OnGameStart' trigger is fired once the game starts, and you can create as many of these as you like within your scripts to respond to this event.\par
+\par
+They are declared as follows:\par
+\par
+\f1 trigger OnGameStart\par
+\{\par
+\tab call CreateTendWifeQuest,\par
+\tab call CreateBarricadeQuest,\par
+\tab call OpeningConversation\par
+\}\f2\par
+\f0\par
+This is a trigger set up from the Kate/Baldspot opening tutorial. The trigger can call one or more scripts using the 'call' command followed by the name of the script, each separated by commas. In this example, as soon as the game starts (after loading map and whatnot) it will call three scripts, two of which set up the quests used in the first part of the game, the last being the opening conversation between Baldspot and Kate.\par
+\par
+Here is a list of currently implemented triggers you can respond to:\par
+\par
+\b OnPostLoadStory - \b0 Called immediately after the script files from the story are loaded.\b\par
+OnPreCharacterCreation \b0 - Called before the character creation screen. Used soley (for now) to load character textures up for its preview window.\par
+\b OnPreMapLoad\b0  \endash  Called before map is loaded. Used primarily to load textures used by the map.\par
+\b OnPostMapLoad\b0  \endash  Called immediately after the map is loaded, usually used to load character textures etc.\par
+\b OnGameStart\b0  \endash  Called once the game world has been initialised and immediately before the game fades in for the player to begin playing.\par
+\b OnPlayerWake \b0 - Called when the player wakes up after sleeping.\par
+\b OnCharacterDeath - \b0 Called when a character defined in the script is killed. Param = character's script name.\par
+\b OnTick - \b0 Triggered every frame.\par
+\b OnLoseSightOfPlayer - \b0 When an NPC loses sight of the player. Param = character's script name.\par
+\b OnSpotPlayer - \b0 When an NPC sees the player. Param = character's script name.\par
+\b OnHearSound - \b0 When an NPC hears a sound caused by another script character. Param = character's script name. Param2 = sound maker's script name.\par
+\b OnPlayerMoved - \b0 Triggered whenever the player moves.\par
+\par
+\i\fs24 Custom Triggers\par
+\i0\fs20\par
+These triggers are much more versatile, allowing you to create your own triggers based on script events, with your own conditions, to allow you much freedom in creating events in your game.\par
+\par
+They are declared in the same way, but with the inclusion of a condition as to whether they fire or not:\par
+\par
+\f1 customtrigger CustomLaunchRaiderEvent\par
+\{\par
+\tab Player.IsUpstairs(),\par
+\tab call SpawnRaider\par
+\}\f2\par
+\f0\par
+(Note that these conditions can now also be applied to normal triggers, will update this section to reflect that)\par
+\par
+See the 'conditions' section (TODO) for info on how to use conditionals in the script. Hopefully it 's rather obvious what the condition is though.\par
+\par
+If the player is upstairs when this custom trigger fires, then call the SpawnRaider script. You can add an '!' to the start to negate the condition and say 'if the player is NOT upstairs, as is done with the fire script in the tutorial:\par
+\par
+\f1 customtrigger CustomStartFire\par
+\{\par
+\tab !Player.IsUpstairs(),\par
+\tab call SetFire\par
+\}\par
+\f0\par
+This '!' stuff will probably be more familiar to coders of languages such as C/C++, Java, C# etc. If not, fear not... you'll get used to it!\par
+\par
+So the above custom trigger will mean it will call the 'SetFire' script as soon as the player sets foot downstairs, in which case it will set the stove fire off.\par
+\par
+Another handy condition for custom triggers is the TimeSinceLastRan function:\par
+\f1\par
+customtrigger CustomDoAlarmSound\par
+\{\par
+\tab CustomDoAlarmSound.TimeSinceLastRan(0.5),\par
+\tab call DoAlarmBeep\par
+\}\par
+\f0\par
+This allows you to do timed events, since the condition will fail until the time since it last succeeded is over 0.5 seconds. In the above example, it will call the DoAlarmBeep script every 0.5 seconds.\par
+\par
+Lastly, for reasons of optimization and for further versatility, custom triggers won't just be processing all the time, and you need to tell them to in your scripts. \par
+\par
+They will only begin processing when you call 'ProcessAlways' on them. And will then process every frame until you call 'ProcessNever' on them. Here is a more in depth example, taken from the 'SetFire' script that causes the tutorial stove fire...\par
+\f1\par
+script SetFire\par
+\{\par
+\tab CustomStartFire.ProcessNever(); \par
+\tab\par
+\tab World.StartFire(TutorialStovePosition, 500000); \tab\par
+\tab\par
+\tab CustomDoAlarmWorldSound.ProcessAlways();\par
+\tab CustomDoAlarmSound.ProcessAlways();\par
+\tab\par
+\tab CanDragKate.Set(yes);\tab\par
+\tab\par
+\tab World.CreateZombieSwarm( 15, TutorialAlarmZombieSpawn ); \tab\par
+\tab\par
+\tab Player.Say("Oh shit...");\par
+\tab\par
+\tab Wait(30.0f);\par
+\tab\par
+\tab CustomDoAlarmWorldSound.ProcessNever();\par
+\tab CustomDoAlarmSound.ProcessNever();\par
+\tab\par
+\}\par
+\par
+\f0\par
+In the first line of the SetFire script, we call ProcessNever on the CustomStartFire trigger. This disables it, as since the player will likely be downstairs for many frames, we don't want to call this SetFire script and start the fire every single frame. The job of that trigger is done now, so we stop it processing.\par
+\par
+Secondly, it starts the fire.\par
+\par
+Next, it activates both the 'CustomDoAlarmWorldSound' and the 'CustomDoAlarmSound' triggers. These will then both start checking the condition specified every frame to see whether they should call their script, in the case of CustomDoAlarmSound:\par
+\par
+\f1 customtrigger CustomDoAlarmSound\par
+\{\par
+\tab CustomDoAlarmSound.TimeSinceLastRan(0.5),\par
+\tab call DoAlarmBeep\par
+\}\par
+\f0\par
+It will check the time when it last succeeded to call DoAlarmBeep, and if it was over 0.5 seconds, it will call DoAlarmBeep, before that time resets to 0 and it will need to wait another 0.5 seconds before it succeeds again.\par
+\par
+So this will start the alarm sound effect and alarm world sound from processing every 0.5/8.0 seconds respectively... the next relevant function is the Wait function:\par
+\par
+\f1 Wait(30.0f);\par
+\f0\par
+Here it tells the script to wait for 30 seconds, staying on that line. In this time, the alarm sounds will continue to fire since the scripts will be called every X seconds by the custom triggers. The scripts looking like this:\par
+\par
+\f1 script DoAlarmBeep\par
+\{\tab\par
+\tab World.PlaySoundEffect("firealarm", TutorialStovePosition, false, 0.0, 30, 0.6, false); \par
+\}\par
+\par
+script DoAlarmWorldBeep\par
+\{\tab\par
+\tab World.PlayWorldSound(TutorialStovePosition, 40, 40);\tab\par
+\}\par
+\f0\par
+The first making a sound effect the player can hear, and the second creating a 'world sound' that zombies will respond to.\par
+\par
+This will continue until the wait command finishes 30 seconds later. It will then do the next lines:\par
+\par
+\f1 CustomDoAlarmWorldSound.ProcessNever();\par
+CustomDoAlarmSound.ProcessNever();\par
+\f0\par
+This will then stop these two triggers from processing, and so the alarm will stop sounding.\par
+\par
+Hopefully you can see the power of triggers to allow you to add custom events to the game. Here is a fire alarm completely scripted using the scripting language, with no hard-coded behaviour to rely on.\par
+\par
+\b\fs28 Hooks\par
+\fs20\par
+\b0 Hooks are similar to triggers, in that they allow you to respond to game events with scripts (see triggers section for a list of events hooks can respond to). The difference is, however, that they are specified when you need them directly in scripts without the need of trigger objects, and can be used on a one off situation where you need to respond to 'the next time something happens' on the fly.\par
+\par
+The perfect example of this is from the tutorial. We want to run the script when Bob wakes up after sleeping in the bed with Kate after she warns him about going out at night, to continue the tutorial with the 'Fast Food' quest. We don't want this to trigger every time he goes to sleep in that bed, or if he goes to sleep in a different bed, so we use a 'one off' hook directly before sleeping that is called the next time Bob wakes up.\par
+\par
+In the script we do this:\par
+\par
+\f1 Kate.Say("You won't see the neighbors till they've taken chunks from you.");\tab\par
+Kate.Say("We'll sleep hungry.");\tab\par
+Hook.RegisterOneTime("OnPlayerWake", "WokeUpInTutorialBed");\par
+Player.Sleep(9.0);\par
+\f0\par
+First she says her dialogue, and then before we command Bob to go to sleep, we do this line:\par
+\par
+\f1 Hook.RegisterOneTime("OnPlayerWake", "WokeUpInTutorialBed");\par
+\f0\par
+This hooks into the OnPlayerWake event (triggers and hooks use the same events) and will call the WokeUpInTutorialBed script the next time he wakes. After that script is called, the hook is removed from the system and never called again. This allows us to continue the scripted scene after he has slept, without risking it being called in unintentional times or fiddling with trigger objects, enabling/disabling processing and all that stuff.\par
+\par
+This same functionality \i could \i0 be provided with triggers, but this form presents a much more convenient and faster way to handle it.\par
+\par
+\b\fs28 Quests\fs20\par
+\par
+\b0 Quests are those things that pop up on the top right to tell you what to do (Tend to Kate's broken leg / Find some painkillers etc), with conditions that can be specified so that you can progress to the next 'task' in the quest upon completion of the previous one.\par
+\par
+You can create these quests wherever you like in script, but a good place to do this is on the OnGameStart trigger.\par
+\par
+The quests are created using commands which operate on the last quest or quest task added. It may be a bit confusing at first but will make more sense after a few examples. Let's look at the 'Soup Kitchen' quest from the tutorial in which Bob must make some soup:\par
+\par
+\f1 script CreateMakeSoupQuest\par
+\{\par
+\tab Quest.CreateQuest("MakeSoupQuest", "Soup Kitchen" );\par
+\tab Quest.AddFindItemTask( "FindPot", "Get a cooking pot", Pot, 1 );\par
+\tab Quest.Unlock();\par
+\tab Quest.UnlockNextTasksOnComplete(1);\par
+\tab Quest.AddFindItemTask( "FindTinOpener", \par
+\tab\tab "Find a tin opener and craft a pot of soup", PotOfSoup, 1 );\par
+\tab Quest.UnlockNextTasksOnComplete(1);\par
+\tab Quest.AddScriptConditionTask( "CookSoup", \par
+\tab\tab "Put soup in oven and turn oven on", "SoupCooking" );\par
+\tab Quest.RunScriptOnComplete("RadioWorks");\par
+\tab\par
+\}\f0\par
+\par
+To make it easier to read I've moved the longer strings onto the next line if necessary to avoid weird wrapping in this document.\par
+\par
+So basically the first line is:\par
+\par
+\f1 Quest.CreateQuest("MakeSoupQuest", "Soup Kitchen" );\f0\par
+\par
+This creates the 'Soup Kitchen' quest, along with the internal name 'MakeSoupQuest' which is how it can be refered to in script.\par
+\par
+At this point all the Quest commands will assume you're working on this quest, to ease in adding additional elements to the quest without having to refer to it explicitly each time.\par
+\par
+The next line says this:\par
+\par
+\f1 Quest.AddFindItemTask( "FindPot", "Get a cooking pot", Pot, 1 );\par
+\f0\par
+This line adds a new 'task' to the current quest. Tasks are the sub-quests inside the quest for the various steps to complete it. In this case 'Get a cooking pot'. \par
+\par
+This is a 'FindItemTask' which is completed when the specified number of items of the specified type are in your inventory. \par
+\par
+In this case \i one Pot\i0 .\par
+\par
+It will now assume that any further commands (beyond adding other tasks) are related to this particular task.\par
+\par
+In light of that, the next line is as follows:\par
+\par
+\f1 Quest.Unlock();\par
+\f0\par
+This command will unlock the task or quest previously added. In this case the FindPot task. It should be noted that all quests and tasks are locked by default, so will not be visible or completable. If we wished to make the Soup Kitchen quest available at the start of the game, we would put a Quest.Unlock() directly after the CreateQuest command AND the AddFindItemTask, like so:\par
+\par
+\f1\tab Quest.CreateQuest("MakeSoupQuest", "Soup Kitchen" );\par
+\tab Quest.Unlock();\par
+\tab Quest.AddFindItemTask( "FindPot", "Get a cooking pot", Pot, 1 );\par
+\tab Quest.Unlock();\par
+\f0\par
+\par
+So as soon as you started the game, this quest would be unlocked to play.\par
+\par
+Since the actual quest does not have an 'Unlock' command, it will be locked on game start, and will only be available when it is unlocked at a later point in the script. In this case when the player returns to the safehouse kitchen after foraging for soup next door. \par
+\par
+SO, adding Unlock after the FindPot has unlocked that task, so as soon as the soup quest is unlocked, it will pop up on the HUD (as a quest with no unlocked tasks still remains effectively locked).\par
+\par
+After the unlock command, the next line is this:\par
+\par
+\f1 Quest.UnlockNextTasksOnComplete(1);\par
+\f0\par
+This command basically says 'when this task / quest we're currently working on is completed, unlock the task after this...' (you can specify a larger number to unlock the next X tasks instead of just one) So in our case, as soon as you've found a cooking pot, unlock the 'find tin opener' task specified next:\par
+\par
+\f1 Quest.AddFindItemTask( "FindTinOpener", \par
+\tab\tab "Find a tin opener and craft a pot of soup", PotOfSoup, 1 );\par
+\f0\par
+This task is completable by having one pot of soup in your inventory. It is assumed if you've got that item then you must have found the tin opener and crafted it.\par
+\par
+And after that:\par
+\par
+\f1 Quest.UnlockNextTasksOnComplete(1);\par
+\f0\par
+So once we've crafted the soup, unlock the next task, which is:\par
+\par
+\f1 Quest.AddScriptConditionTask( "CookSoup", \par
+\tab\tab "Put soup in oven and turn oven on", SoupCooking );\par
+\f0\par
+This one is a little different, since it is a 'ScriptConditionTask'. A script condition task is a special kind of task where you yourself can define in script the condition that determines if the task is completed.\par
+\par
+In this case we've specified 'SoupCooking' as the name of the condition, and above this in the script we have defined our questcondition object:\par
+\par
+\f1 questcondition SoupCooking\par
+\{\par
+\tab Stove.IsActivated() && StoveContainer.HasInventory(PotOfSoup)\par
+\}\par
+\f0\par
+We've touched on conditions before, but there's something new here. The '&&' means 'and' and it specifies that multiple conditions need to be 'true' before the condition passes true.\par
+\par
+So in this case we're checking if our stove is activated (i.e. been turned on) AND the stove's container box has a 'PotOfSoup' inside it. Only when both these criteria are met will the questcondition be true, and the quest task be completed.\par
+\par
+Last but definitely not least, we have this:\par
+\par
+\f1 Quest.RunScriptOnComplete("RadioWorks");\par
+\f0\par
+This specifies that when 'the last thing' i.e. the cooking soup task' is completed, we want to run a script. Here we're running the 'RadioWorks' script, which will have Kate shout down that she's got the radio working.\par
+\par
+And there we have it! This is how to make your own quests.\par
+\par
+Other types of quest tasks include:\par
+\par
+\i AddGotoLocationTask\i0  - Specifies a waypoint that the player must be within 2 tiles of before the task completes. E.g. 'Go to shed':\par
+\par
+\f1 waypoint ShedDoor\par
+\{\par
+\tab 19, 24, 0\par
+\}\par
+\par
+Quest.AddGotoLocationTask("gotoShed", "Go to the shed", ShedDoor);\par
+\f0\par
+\i AddEquipItemTask - \i0 Specifies an item that must be equipped to one of the hand equip slots. E.g. Equip the hammer:\par
+\par
+\f1 Quest.AddEquipItemTask( "equipHammer", "Equip hammer", Hammer );\par
+\f0\par
+\i AddUseItemOnTask\i0  - Specifies a task where you must use an item on a character. E.g. bandaging Kate's leg:\par
+\par
+\f1 Quest.AddUseItemOnTask("bandagekate", "Bandage Kate's leg", RippedSheets, Kate);\par
+\par
+\i\f0 AddHardCodedTask - \i0 Any quest tasks that currently are not supported in script, and are still hard coded, for example spotting a zombie (in the next door kitchen)\par
+\par
+\f1 Quest.AddHardCodedTask( "spotzombiehidden", "", "spotzombie" );\par
+\f0\par
+This is an interesting one, actually, as it has no visible task description to be put on the HUD. This is because it's not really an 'official' task and rather a mechanism used to surprise the player with the zombie in the kitchen. \par
+\par
+Here is the entire 'Fast Food' quest in script form, which may look a bit scary at first:\par
+\par
+\f1 Quest.CreateQuest("FastFoodQuest", "Fast Food" );\par
+\f0\tab\tab\par
+\f1 Quest.AddHardCodedTask( "spotzombiehidden", "", "spotzombie" );\par
+Quest.UnlockButHide();\par
+Quest.UnlockTaskOnComplete( "killzombie" );\par
+\par
+Quest.AddHardCodedTask("leavehouse", "Leave the house", \par
+\tab\tab\tab\tab "PlayerOutside" );\par
+Quest.Unlock();\par
+Quest.UnlockNextTasksOnComplete(1);\par
+\par
+Quest.AddGotoLocationTask("approachhouse", \par
+\tab "Carefully approach house to the east", OutsideSoupHouse );\par
+Quest.RunScriptOnComplete("SpawnZombieOnFastFood");\par
+Quest.UnlockTaskOnComplete("searchkitchen");\par
+\par
+Quest.AddHardCodedTask( "killzombie", "Kill the zombie", "killzombie" );\par
+\par
+Quest.AddFindItemTask( "searchkitchen", \par
+\tab\tab "Search the kitchen and collect some food supplies", \par
+\tab\tab TinnedSoup, 1 );\par
+\par
+Quest.UnlockNextTasksOnComplete(1);\par
+\par
+Quest.AddGotoLocationTask( "returnsafehouse", \par
+\tab\tab "Return to safehouse kitchen", SafehouseKitchen );\par
+\par
+Quest.RunScriptOnComplete("WeGotSoup");\par
+\f0\par
+A little more scary and confusing. The relevent bits are these though:\par
+\par
+\f1 Quest.AddHardCodedTask( "spotzombiehidden", "", "spotzombie" );\par
+Quest.UnlockButHide();\par
+Quest.UnlockTaskOnComplete( "killzombie" );\par
+\f0\par
+This creates a task without description that is completed when a zombie is spotted (via a hard coded test). \par
+\par
+It also unlocks it, but uses 'UnlockButHide' instead of 'Unlock'. This means the quest is processed, and can be completed by fulfilling the requirements, but will not register on the UI at all.\par
+\par
+An important aspect of the quest UI is it displays the \i first unlocked task \i0 for a quest. Tasks are shown in the order they are added. This is crucial for this quest since after entering the house it says:\par
+\par
+"Search the kitchen and collect some food supplies."\par
+\par
+Mainly because we don't want to ruin the surprise of the zombie in the kitchen. Since we used 'UnlockButHide' the UI will skip the spotzombie one and display this next unlocked task, so it can sit there silently waiting to complete, the player not even aware it is there.\par
+\par
+However as soon as the zombie is spotted, we want to say instead say 'Kill the zombie!', so this means the kill the zombie task needs to be put into the quest \i before\i0  the 'search the kitchen' task. Therefore it'll show the kitchen task until the moment the zombie kill task is unlocked, at which point the zombie killing task will take precedence since it was added first. \par
+\par
+And when the zombie is dead and the task completed, it will revert back to the 'Search the kitchen' task, being the next available unlocked task.\par
+\par
+This probably sounds more confusing than it is, the point being is we have an invisible 'spot zombie' task first, and that specifically unlocks the 'kill zombie' task when it completes. And since we added both the spot and kill zombie tasks before the 'search kitchen' ones, it means they will take priority on the UI as soon as they are unlocked. \par
+\par
+If we added them after, which would make sense chronologically, then it would only tell you to kill the zombie after you found the soup.\par
+\par
+Another important part of this script are these:\par
+\par
+\f1 Quest.UnlockTaskOnComplete( "killzombie" );\par
+\f0\par
+Note that in most cases, we've used the following to specify that we want to unlock the next task on the current task's completion:\par
+\par
+\f1 Quest.UnlockNextTasksOnComplete(1);\par
+\f0\par
+However, because we fudged the ordering, we cannot use this, since the next task added to the quest is NOT the one we want this task to unlock. However since we refer to each task with a name, in this case 'killzombie', we can use UnlockTaskOnComplete to specify the specific task we would like to unlock when this task is complete.\par
+\par
+To be honest I've made a right meal of explaining this. Will work on making it more clear, but hopefully you see what I'm getting at.\par
+\par
+Finally, it's important to note that at any point in any script, you can unlock a previously created quest as follows:\par
+\par
+\f1 Player.Say( "We got soup!");\par
+Quest.UnlockQuest("MakeSoupQuest");\par
+\f0\par
+So after a conversation script, or cutscene, or whatever, you can call to unlock one of your quests, and this quest will immediately appear in the HUD to prompt the player of what they have to do, and begin testing for completion.\par
+\par
+Another important thing to note, is that quests can be created during gameplay as well as on game start. A reason you may want to do this would be to alter the content of a quest based upon other factors, for example we could create the soup quest just before unlocking it, instead of on game start, and do some logic in an if statement to modify the quest based on previous actions:\par
+\par
+\par
+\f1 script CreateMakeSoupQuest\par
+\{\par
+\tab Quest.CreateQuest("MakeSoupQuest", "Soup Kitchen" );\par
+\tab Quest.AddFindItemTask( "FindPot", "Get a cooking pot", Pot, 1 );\par
+\tab Quest.Unlock();\par
+\tab Quest.UnlockNextTasksOnComplete(1);\par
+\tab Quest.AddFindItemTask( "FindTinOpener", \par
+\tab\tab "Find a tin opener and craft a pot of soup", PotOfSoup, 1 );\par
+\tab Quest.UnlockNextTasksOnComplete(1);\par
+\tab\par
+\tab if(Player.HasInventory(Spices))\par
+\tab\{\par
+\tab\tab Quest.AddFindItemTask( "AddSpices", \par
+\tab\tab\tab "Craft spices into pot", SpicyPotOfSoup, 1 );\par
+\tab\tab Quest.UnlockNextTasksOnComplete(1);\par
+\tab\tab Quest.AddScriptConditionTask( "CookSoup", \par
+\tab\tab\tab "Put spicy soup in oven and turn oven on", \par
+\tab\tab\tab "SpiceSoupCooking" );\par
+\par
+\tab\}\par
+\tab else\par
+\tab\{\par
+\tab\tab Quest.AddScriptConditionTask( "CookSoup", \par
+\tab\tab "Put soup in oven and turn oven on", "SoupCooking" );\par
+\par
+\tab\}\tab\par
+\tab\par
+\tab Quest.RunScriptOnComplete("RadioWorks");\par
+\tab\par
+\}\f0\par
+\par
+In the above example, it will check your inventory and if you are carrying Spices, then it will add an additional task into the middle of the quest where you need to craft the pot of soup with the spices to create a SpicyPotOfSoup. This is only possible if the quest is created when it is needed instead of being created on the OnGameStart trigger. \par
+\par
+Of course in this example we also need to specify a different 'put it in the oven' task pointing at a different questcondition, as it needs to detect the SpicyPotOfSoup item in the stove and not the PotOfSoup item.\par
+\par
+This is a rather dull example, I'm sure you can come up with more exciting ways to use this system. :)\par
+\par
+\b\fs28 Setting Script flags\par
+\fs20\par
+\b0 Script flags allow you to do longer term scripting logic into your game scripts. For example storing whether different routes were taken, player choices, or if specific events have happened in the past, so that they can affect the outcome of the game later down the line.\par
+\par
+You can create a flag, and set its value at any time. You can also test a flag's value in if statements in your scripts, or use their values in trigger conditions, or quest conditions, as you wish.\par
+\par
+To use a flag, first create one like this:\par
+\par
+\f1 scriptflag MetJack\par
+\{\par
+\tab no /* initial value */\par
+\}\par
+\f0\par
+In this example, we've created a flag called 'MetJack' which we will use to determine if we've... well, met Jack... we default it to 'no' so at the start of the game, you've not met Jack.\par
+\par
+Now supposing we meet Jack, and we trigger an opening conversation with him. In that opening conversation script we can do this:\par
+\par
+\f1 script MeetJackScene\par
+\{\par
+\tab Jack.Say("HEY! I'm Jack, nice to meet you!");\par
+\tab Bob.Say("Hey! I'm Bob. But you can call me Baldspot");\par
+\tab Jack.Say("Here, have some porn!");\par
+\tab Bob.AddInventory(Porn);\par
+\tab Jack.RemoveInventory(Porn);\par
+\tab MetJack.Set(yes);\par
+\}\par
+\f0\par
+So along with the opening dialogue and porn exchange, we've called 'MetJack.Set(yes)' which will set that flag to that value.\par
+\par
+Then later down the line, we could do the following in a conversation between Baldspot and Kate:\par
+\par
+\f1 script MeetJackScene\par
+\{\par
+\tab Kate.Say("See anyone else while you were gone?");\par
+\tab if(MetJack.Is(yes))\par
+\tab\{\par
+\tab\tab Bob.Say("I met this guy called Jack. He gave me porn.");\par
+\tab\}\par
+\tab else\par
+\tab\{\par
+\tab\tab Bob.Say("Nope. Not a soul.");\par
+\tab\}\par
+\}\par
+\f0\par
+As you can see, if you met Jack, then you can influence the direction of a later conversation, perhaps open up a new quest, or completely change the course of the game.\par
+\par
+As with if statements, the same flag can be used as a condition for a custom trigger, e.g...\par
+\par
+\f1 customtrigger JackSavesYouFromZombie\par
+\{\par
+\tab MetJack.Is(yes),\par
+\tab call JackIntervenes\par
+\}\par
+\f0\par
+So if you met Jack earlier, then in this life or death moment maybe Jack swoops in and kills the zombie that's got you cornered as defined by the 'JackIntervenes' script, where if you never met him you'd have to deal with the zombie yourself...\par
+\par
+Or, in fact, prior to meeting Jack, you could make a quest to meet Jack:\par
+\par
+\f1 questcondition MeetingJack\par
+\{\par
+\tab MetJack.Is(yes)\par
+\}\par
+\f0\par
+As mentioned earlier, quest conditions work just like if statements or custom trigger conditions. Now we've set this up we can add a quest like so:\par
+\par
+\f1 Quest.CreateQuest("FindPorn", "Pornhunter" );\par
+Quest.Unlock();\par
+Quest.AddScriptConditionTask("findporn", \par
+\tab\tab\tab\tab\tab "Find Porn", \par
+\tab\tab\tab\tab\tab MeetingJack );\par
+Quest.Unlock();\par
+\f0\par
+So this creates, and unlocks, a new quest called 'Pornhunter', the goal of which is to find some porn.\par
+\par
+So you wander about, and finally bump into Jack, which causes the opening conversation in which he gives you porn, and the MetJack flag is set to yes. At this point the MeetingJack questcondition will return true, and you will complete that quest task.\par
+\par
+For more details on how quests are set up, see the Quests section above.\par
+\par
+\b\fs28 Functions\b0\fs20\par
+\par
+(wip function list available to different script objects)\par
+\par
+\b\i\fs24 Activatable\b0\fs20\par
+\par
+IsActivated()\par
+\i0\par
+Returns true if the 'activatable' is active.\par
+\par
+\i ToggleActivatable()\par
+\i0\par
+Toggles the state of the activatable. Turns it on if it was off, and off if it was on.\par
+\par
+\b\i\fs24 Character\fs20\par
+\b0\i0\par
+\i Actualize(Waypoint)\par
+\par
+\i0 Creates the character in the game world at the waypoint specified.\par
+\par
+\i AddEnemy(Character)\par
+\par
+\i0 Adds the specified character to the NPC's 'enemy list'. they will respond to the character as an enemy, in the case of the (currently only existing one) GunNut personality, will attack them on sight.\par
+\par
+\i AddInventory(Item)\par
+\par
+\i0 Adds the specified item to the character's inventory.\par
+\par
+\i AimWhileStationary(Character)\par
+\par
+\i0 Will tell the NPC to look toward and aim their weapon at the specified character whenever stationary.\par
+\par
+\i AllowBehaviours(true/false)\par
+\i0\par
+Specifies whether the NPC is allowed to behave on their own as per their personality when not receiving script commands.\par
+\par
+\i Attack()\par
+\i0\par
+Will make the NPC attack in the current facing direction with their equipped weapon.\par
+\par
+\i Equip(Item)\i0\par
+\par
+Makes the NPC equip specified item in main equip slot if they have it in their inventory.\par
+\i\par
+Face(N/NE/E/SE/S/SW/W/NW)\i0\par
+\par
+Make the NPC face a compass direction (north = top right of screen)\par
+\par
+\i HasInventory(Item)\par
+\par
+\i0 Returns true if the character is carrying at leasy one of the specified item in their inventory.\par
+\par
+\i HasTrait(Trait)\par
+\par
+\i0 Returns true if the character has a specific character trait.\par
+\par
+\i InRange(Waypoint, Range)\par
+InRange(Character, Range)\par
+\par
+\i0 Returns true if the character is within the specified range (in tiles) of the specified waypoint or character.\par
+\par
+\i IsDead()\par
+\i0\par
+Returns true if the character is dead.\par
+\par
+\i IsInRoom(Room)\par
+IsInRoom(Character)\par
+\i0\par
+Returns true if the character is in the specified room, or is in the same room as the specified character.\par
+\par
+\i IsInside()\par
+\i0\par
+Returns true if the character is inside a building.\par
+\par
+\i IsOnFloor(Floor)\par
+IsOnFloor(MinFloor, MaxFloor)\par
+\par
+\i0 Returns true if the character is on the floor (numeric) specified. Or is between two floors specified. IsOnFloor(0) returns true if that character is on the ground floor, for example.\par
+\par
+\i IsSpeaking()\par
+\i0\par
+Returns true if the character is currently speaking.\par
+\par
+\i Say(Text)\par
+\par
+\i0 Causes the character to speak the text line specified.\par
+\par
+\i SayIdle(Text)\par
+\par
+\i0 Causes the character to speak the text line specified, however they will be free to carry out their own behaviour while they do so (e.g. hunt the player / kill zombies)\par
+\par
+\i Sleep(WakeUpTime)\par
+\par
+\i0 Causes the character to go to sleep, specifying them to wake up at the WakeUpTime.\par
+\par
+\i StopAction()\par
+\par
+\i0 Stops a character doing an action (such as barricading)\par
+\par
+\i Walk(Waypoint)\par
+\par
+\i0 Causes the character to pathfind and walk to the specified waypoint.\par
+\par
+\i WalkToLastHeardSound()\par
+\par
+\i0 Causes the character to pathfind toward the last sound they heard.\par
+\par
+\i WalkToLastKnownLocationOf(Character)\par
+\par
+\i0 Causes the character to pathfind toward the last location they saw the specified character (only works with player currently)\par
+\par
+\b\i\fs24 Script Flags\fs20\par
+\b0\i0\par
+\i Decrement()\par
+\par
+\i0 Decreases the value of a script flag by one.\par
+\par
+\i Increment()\par
+\par
+\i0 Increases the value of a script flag by one.\par
+\par
+\i IsFlagValue(val)\par
+\par
+\i0 Returns true if the value of the flag matches the passed value.\par
+\par
+\i IsGreaterThan(val)\par
+\par
+\i0 Returns true if the value of the flag is higher than the passed value.\par
+\par
+\i IsGreaterThanEqualTo(val)\par
+\par
+\i0 Returns true if the value of the flag is higher or equal to the passed value.\par
+\par
+\i IsLessThan(val)\par
+\par
+\i0 Returns true if the value of the flag is less than the passed value.\par
+\par
+\i IsLessThanEqualTo(val)\par
+\par
+\i0 Returns true if the value of the flag is less or equal to the passed value.\par
+\par
+\i Set(val)\par
+\par
+\i0 Sets the value of a flag to the specified value.\par
+\par
+\b\i\fs24 Hooks\fs20\par
+\b0\i0\par
+\i RegisterOneTime(event, script)\par
+\par
+\i0 Creates a one off hook that calls the specified script next time the specified event fires.\par
+\par
+\b\i\fs24 Modules\fs20\par
+\b0\i0\par
+\i Enabled(true/false)\par
+\par
+\i0 Enables or disables a module.\par
+\par
+\b\i\fs24 Scripts\fs20\par
+\b0\i0\par
+\i Call()\par
+\par
+\i0 Calls the script then carries on immediately to next line of current script. (Can also use 'call ScriptName' which is identical to this)\par
+\par
+\i CallAndWait()\par
+\par
+\i0 Calls the script and waits until the script is complete before moving on. (Can also use 'callwait ScriptName' which is identical to this)\par
+\par
+\i IsPlaying()\par
+\i0\par
+Returns true if the script is currently playing.\par
+\par
+\i Pause()\par
+\i0\par
+Pauses the script, keeping its current location.\par
+\par
+\i Resume()\par
+\i0\par
+Resumes a paused script at its current location.\par
+\par
+\i Stop()\par
+\par
+\i0 Stops a script.\par
+\par
+\b\i\fs24 Triggers\fs20\par
+\b0\i0\par
+\i IsLastFiredParameter(value)\par
+IsLastFiredParameter(paramIndex, value)\par
+\par
+\i0 Checks if the parameter passed with the last firing of an event is equal to the specified value. Also in cases of some events where there are multiple parameters, can also pass an index between 0 and 3 to specify which param to check the value against.\par
+\par
+\i ProcessAlways()\par
+\par
+\i0 Starts custom triggers from processing every frame.\par
+\par
+\i ProcessNever()\par
+\par
+\i0 Stops custom triggers from processing.\par
+\par
+\i TimeSinceLastRan(seconds)\par
+\par
+\i0 Returns true if the specific trigger this is a condition of hasn't fired for the passed number of seconds.\par
+\par
+\b\i\fs24 Tutorial\fs20\par
+\b0\i0\par
+\i DisableTutorialZombieControl()\par
+\par
+\i0 Kills the 'safe zone' and starts zombies spawning.\par
+\par
+\i SetZombieLimit()\par
+\par
+\i0 Changes the maximum allowed 'tutorial zombie amount', allows you to add reduced numbers of zombies while the character is still in the 'safe zone'.\par
+\par
+\b\i\fs24 World\fs20\par
+\b0\i0\par
+\i CreateZombieSwarm(number, Zone)\i0\par
+\par
+Creates the passed number of zombies in the rectangle defined by the passed Zone.\par
+\par
+\i PlaySoundEffect(format, effectName, waypoint, pitchVariation, radius, volume, true/false)\par
+\par
+\i0 Plays a sound effect in the game world (not audible by game characters)\par
+\par
+format: "OGG" or "WAV"\par
+effectName: filename of the sound without directory or extension. \par
+waypoint: Location in game world the sound originates from.\par
+pitchVariation: -1.0 to 1.0, how much pitch variation each occurance of the sound may vary randomly.\par
+radius: Fall off distance of volume until the sound is inaudiable.\par
+volume: volume of the sound effect (0.0 - 1.0) when it's at closest range.\par
+ignore outside muffling: true means it will always play at the volume based on distance. false means it will be muffled if player is outside / sound is inside, and vice versa.\par
+\par
+\i PlayWorldSoundEffect(waypoint, radius, volume)\i0\par
+\par
+Makes a sound in the game world that NPCs can hear. waypoint is origin of sound, radius is the falloff distance of the sound, and volume is volume of sound. Zombies will prioritise the loudest sound they hear when taking volume and distance into account. For most cases using the same volume as radius is a good starting point.\par
+\par
+\i SpawnZombie(waypoint)\par
+\par
+\i0 Spawns a single zombie at the specified waypoint.\par
+\par
+\i StartFire(waypoint, energyvalue)\par
+\i0\par
+Starts a fire at the specified waypoint. energyvalue specifies how much energy is available to spread fire. Higher numbers mean faster spreading fire.\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+.\i\par
+}
+ 
