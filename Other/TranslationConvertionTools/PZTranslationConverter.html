@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Translation File Converter — TXT to JSON</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background: #1a1a2e;
+        color: #e0e0e0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem 1rem;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+        color: #a8d8ea;
+        margin-bottom: 0.3rem;
+    }
+
+    .subtitle {
+        color: #888;
+        font-size: 0.85rem;
+        margin-bottom: 2rem;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 720px;
+    }
+
+    .drop-zone {
+        border: 2px dashed #3a3a5c;
+        border-radius: 12px;
+        padding: 3rem 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+        background: #16213e;
+        margin-bottom: 1.5rem;
+    }
+
+    .drop-zone:hover, .drop-zone.drag-over {
+        border-color: #a8d8ea;
+        background: #1a2744;
+    }
+
+    .drop-zone p { color: #aaa; margin-top: 0.5rem; font-size: 0.9rem; }
+    .drop-zone .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+
+    .btn {
+        display: inline-block;
+        padding: 0.6rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+        background: #0f3460;
+        color: #a8d8ea;
+    }
+    .btn-primary:hover { background: #164a7a; }
+
+    .btn-download {
+        background: #1a8a5c;
+        color: #fff;
+        margin-top: 1rem;
+    }
+    .btn-download:hover { background: #1fa06a; }
+    .btn-download:disabled {
+        background: #333;
+        color: #666;
+        cursor: not-allowed;
+    }
+
+    #folderInput { display: none; }
+
+    .log-area {
+        background: #0f0f23;
+        border: 1px solid #2a2a4a;
+        border-radius: 8px;
+        padding: 1rem 1.2rem;
+        max-height: 400px;
+        overflow-y: auto;
+        font-family: 'Consolas', 'Courier New', monospace;
+        font-size: 0.82rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .log-area:empty { display: none; }
+
+    .log-info { color: #a8d8ea; }
+    .log-success { color: #6bde8a; }
+    .log-warn { color: #f0c040; }
+    .log-error { color: #f06060; }
+    .log-header { color: #c4b5fd; font-weight: bold; }
+
+    .stats {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-card {
+        background: #16213e;
+        border: 1px solid #2a2a4a;
+        border-radius: 8px;
+        padding: 0.8rem 1.2rem;
+        flex: 1;
+        min-width: 140px;
+        text-align: center;
+    }
+
+    .stat-card .num { font-size: 1.8rem; font-weight: bold; color: #a8d8ea; }
+    .stat-card .label { font-size: 0.75rem; color: #888; margin-top: 0.2rem; }
+
+    .actions { text-align: center; }
+</style>
+</head>
+<body>
+
+<h1>PZ Translation File Converter</h1>
+<p class="subtitle">TXT &rarr; JSON</p>
+
+<div class="container">
+    <div class="drop-zone" id="dropZone">
+        <div class="icon">&#128193;</div>
+        <button class="btn btn-primary" id="selectBtn">Select Folder</button>
+        <p>or drag and drop</p>
+        <p style="font-size:0.75rem;color:#666;margin-top:0.3rem;">Supports entire translation folders, language folders or single files.</p>
+    </div>
+
+    <input type="file" id="folderInput" webkitdirectory multiple>
+
+    <div class="stats" id="stats" style="display:none;">
+        <div class="stat-card"><div class="num" id="statLangs">0</div><div class="label">Languages</div></div>
+        <div class="stat-card"><div class="num" id="statFiles">0</div><div class="label">Files Converted</div></div>
+        <div class="stat-card"><div class="num" id="statKeys">0</div><div class="label">Total Keys</div></div>
+    </div>
+
+    <div class="log-area" id="log"></div>
+
+    <div class="actions">
+        <button class="btn btn-download" id="downloadBtn" disabled>Download ZIP</button>
+    </div>
+</div>
+
+<script>
+
+// Language Code Mapping
+const LANG_MAP = {
+    AF: "Afrikaans", AR: "Arabic", BG: "Bulgarian", CA: "Catalan",
+    CH: "Traditional Chinese", CN: "Simplified Chinese", CS: "Czech",
+    DA: "Danish", DE: "German", EE: "Estonian", EL: "Greek",
+    EN: "English", ES: "Spanish", FI: "Finnish", FR: "French",
+    GA: "Irish", HU: "Hungarian", ID: "Indonesian", IT: "Italian",
+    JA: "Japanese", KO: "Korean", NL: "Dutch", NO: "Norwegian",
+    PH: "Filipino", PL: "Polish", PT: "Portuguese", PTBR: "Brazilian Portuguese",
+    RO: "Romanian", RU: "Russian", SV: "Swedish", TH: "Thai",
+    TR: "Turkish", UK: "Ukrainian", VI: "Vietnamese", ZH: "Chinese"
+};
+
+// TXT Parser 
+function parseTxtFile(text) {
+    const entries = [];
+    const warnings = [];
+
+    // Replace block comments with a blank-line marker
+    let marked = text.replace(/\/\*[\s\S]*?\*\//g, "\n__COMMENT_BREAK__\n");
+
+    // Replace single-line comments with a blank-line marker
+    marked = marked.replace(/--[^\n]*/g, "__COMMENT_BREAK__");
+
+    const openBrace = marked.indexOf("{");
+    const closeBrace = marked.lastIndexOf("}");
+
+    if (openBrace === -1 || closeBrace === -1) {
+        warnings.push("Could not find table braces { } — attempting line-by-line parse");
+    }
+
+    const inner = (openBrace !== -1 && closeBrace !== -1)
+        ? marked.substring(openBrace + 1, closeBrace)
+        : marked;
+
+    const kvRegex = /^\s*([\w.]+)\s*=\s*"((?:[^"\\]|\\.)*)"\s*,?\s*$/;
+    let lastWasBreak = false;
+    let hasEntries = false;
+
+    for (const line of inner.split("\n")) {
+        if (line.includes("__COMMENT_BREAK__") || line.trim() === "") {
+            if (hasEntries && !lastWasBreak) {
+                entries.push(null);
+                lastWasBreak = true;
+            }
+            continue;
+        }
+
+        const match = kvRegex.exec(line);
+        if (match) {
+            const key = match[1];
+            const value = match[2]
+                .replace(/\\"/g, '"')
+                .replace(/\\\\/g, '\\')
+                .replace(/\\n/g, '\n');
+            entries.push({ key, value });
+            hasEntries = true;
+            lastWasBreak = false;
+        }
+    }
+
+    while (entries.length > 0 && entries[entries.length - 1] === null) {
+        entries.pop();
+    }
+
+    if (!hasEntries) {
+        warnings.push("No key-value pairs found");
+    }
+
+    return { entries, warnings };
+}
+
+// Build JSON string
+function entriesToJson(entries) {
+    const lines = ["{"];
+    const kvEntries = entries.filter(e => e !== null);
+    let kvIndex = 0;
+
+    for (let i = 0; i < entries.length; i++) {
+        if (entries[i] === null) {
+            lines.push("");
+        } else {
+            kvIndex++;
+            const isLast = kvIndex === kvEntries.length;
+            const key = JSON.stringify(entries[i].key);
+            const value = JSON.stringify(entries[i].value);
+            lines.push(`    ${key}: ${value}${isLast ? "" : ","}`);
+        }
+    }
+
+    lines.push("}");
+    return lines.join("\n");
+}
+
+//  Detect Language
+function detectLangFromFilename(filename) {
+    const match = filename.match(/_([A-Z]{2,4})\.txt$/i);
+    return match ? match[1].toUpperCase() : null;
+}
+
+function toJsonFilename(filename) {
+    return filename.replace(/_[A-Z]{2,4}\.txt$/i, ".json");
+}
+
+// Generate language.txt
+function generateLanguageTxt(langCode) {
+    const name = LANG_MAP[langCode] || langCode;
+    return `VERSION = 1,\ntext = ${name},\n`;
+}
+
+// Logging
+const logEl = document.getElementById("log");
+function log(msg, cls = "log-info") {
+    const span = document.createElement("span");
+    span.className = cls;
+    span.textContent = msg + "\n";
+    logEl.appendChild(span);
+    logEl.scrollTop = logEl.scrollHeight;
+}
+
+// Conversion Logic
+let zipBlob = null;
+
+async function processFiles(fileList) {
+    logEl.innerHTML = "";
+    zipBlob = null;
+    document.getElementById("downloadBtn").disabled = true;
+    document.getElementById("stats").style.display = "none";
+
+    const files = Array.from(fileList);
+    const txtFiles = files.filter(f => {
+        const name = f.name.toLowerCase();
+        if (!name.endsWith(".txt")) return false;
+        if (name === "language.txt") return false;
+        const parts = f.webkitRelativePath.split("/");
+        const inSubfolder = parts.length >= 3;
+        const hasLangSuffix = /_[A-Z]{2,4}\.txt$/i.test(f.name);
+        return inSubfolder || hasLangSuffix;
+    });
+
+    if (txtFiles.length === 0) {
+        log("No .txt translation files found in the selected folder.", "log-error");
+        return;
+    }
+
+    log(`Found ${txtFiles.length} .txt file(s)`, "log-header");
+    const groups = {};
+
+    for (const file of txtFiles) {
+        const parts = file.webkitRelativePath.split("/");
+        if (parts.length >= 3) {
+            const subfolder = parts.slice(1, parts.length - 1).join("/");
+            if (!groups[subfolder]) groups[subfolder] = [];
+            groups[subfolder].push(file);
+        } else {
+            if (!groups[""]) groups[""] = [];
+            groups[""].push(file);
+        }
+    }
+
+    const subfolders = Object.keys(groups);
+    const namedFolders = subfolders.filter(s => s !== "");
+    const isMultiLang = namedFolders.length > 0;
+
+    log(isMultiLang
+        ? `Detected ${namedFolders.length} language folder(s): ${namedFolders.join(", ")}`
+        : "Single folder (no language subfolders)",
+        "log-info"
+    );
+
+    const zip = new JSZip();
+    let totalFiles = 0;
+    let totalKeys = 0;
+    const langSet = new Set();
+
+    for (const subfolder of subfolders) {
+        const groupFiles = groups[subfolder];
+        const prefix = subfolder ? subfolder + "/" : "";
+
+        if (subfolder) {
+            log(`\n── ${subfolder} ──`, "log-header");
+        }
+
+        // Detect language code from subfolder name or filenames
+        let langCode = subfolder ? subfolder.split("/").pop().toUpperCase() : null;
+
+        for (const file of groupFiles) {
+            try {
+                const text = await file.text();
+                const { entries, warnings } = parseTxtFile(text);
+                const keyCount = entries.filter(e => e !== null).length;
+
+                // Detect lang from filename if not from subfolder
+                if (!langCode) {
+                    langCode = detectLangFromFilename(file.name);
+                }
+
+                const jsonFilename = toJsonFilename(file.name);
+                const jsonContent = entriesToJson(entries);
+
+                zip.file(prefix + jsonFilename, jsonContent + "\n");
+                totalFiles++;
+                totalKeys += keyCount;
+
+                log(`  ${file.name} -> ${jsonFilename}  (${keyCount} keys)`, "log-success");
+
+                for (const w of warnings) {
+                    log(`    Warning: ${w}`, "log-warn");
+                }
+            } catch (err) {
+                log(`  Error processing ${file.name}: ${err.message}`, "log-error");
+            }
+        }
+
+        // Generate language.txt for folder
+        if (langCode) {
+            langSet.add(langCode);
+            const langTxt = generateLanguageTxt(langCode);
+            zip.file(prefix + "language.txt", langTxt);
+            log(`  Generated language.txt (${LANG_MAP[langCode] || langCode})`, "log-success");
+        } else {
+            log(`  Could not detect language code — skipping language.txt`, "log-warn");
+        }
+    }
+
+    zipBlob = await zip.generateAsync({ type: "blob" });
+
+    // Stats
+    document.getElementById("statLangs").textContent = langSet.size || "?";
+    document.getElementById("statFiles").textContent = totalFiles;
+    document.getElementById("statKeys").textContent = totalKeys;
+    document.getElementById("stats").style.display = "flex";
+
+    document.getElementById("downloadBtn").disabled = false;
+}
+
+// UI
+const dropZone = document.getElementById("dropZone");
+const folderInput = document.getElementById("folderInput");
+const selectBtn = document.getElementById("selectBtn");
+const downloadBtn = document.getElementById("downloadBtn");
+
+selectBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    folderInput.click();
+});
+
+dropZone.addEventListener("click", () => folderInput.click());
+
+folderInput.addEventListener("change", (e) => {
+    if (e.target.files.length > 0) processFiles(e.target.files);
+});
+
+// Drag and Drop
+dropZone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropZone.classList.add("drag-over");
+});
+
+dropZone.addEventListener("dragleave", () => {
+    dropZone.classList.remove("drag-over");
+});
+
+dropZone.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    dropZone.classList.remove("drag-over");
+
+    const items = e.dataTransfer.items;
+    if (items && items.length > 0) {
+        const allFiles = [];
+        const promises = [];
+
+        for (const item of items) {
+            const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+            if (entry) {
+                promises.push(readEntryRecursive(entry, ""));
+            }
+        }
+
+        const fileArrays = await Promise.all(promises);
+        const flatFiles = fileArrays.flat();
+
+        if (flatFiles.length > 0) {
+            processFiles(flatFiles);
+        } else {
+            log("No files found in dropped folder.", "log-warn");
+        }
+    }
+});
+
+function readEntryRecursive(entry, basePath) {
+    return new Promise((resolve) => {
+        if (entry.isFile) {
+            entry.file((file) => {
+                Object.defineProperty(file, "webkitRelativePath", {
+                    value: basePath ? basePath + "/" + file.name : file.name,
+                    writable: false
+                });
+                resolve([file]);
+            });
+        } else if (entry.isDirectory) {
+            const reader = entry.createReader();
+            const allEntries = [];
+
+            function readBatch() {
+                reader.readEntries((entries) => {
+                    if (entries.length === 0) {
+                        const promises = allEntries.map(e =>
+                            readEntryRecursive(e, basePath ? basePath + "/" + entry.name : entry.name)
+                        );
+                        Promise.all(promises).then(results => resolve(results.flat()));
+                    } else {
+                        allEntries.push(...entries);
+                        readBatch();
+                    }
+                });
+            }
+            readBatch();
+        } else {
+            resolve([]);
+        }
+    });
+}
+
+// Download
+downloadBtn.addEventListener("click", () => {
+    if (!zipBlob) return;
+    const url = URL.createObjectURL(zipBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "translations_json.zip";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
