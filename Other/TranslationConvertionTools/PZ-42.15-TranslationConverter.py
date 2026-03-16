@@ -5,6 +5,8 @@
 #
 # Author: MassCraxx
 # Copilot was used for this.
+#
+# Tweaked by SimKDT
 
 import os
 import json
