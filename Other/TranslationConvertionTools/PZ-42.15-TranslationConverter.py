@@ -41,8 +41,8 @@ def extract_table_content(text):
 
 # Remove underscore from keys
 def clean_key(key):
-    if "_" in key:
-        return key.split("_", 1)[1]
+#    if "_" in key:
+#        return key.split("_", 1)[1]
     return key
 
 # Extract PZ .txt language file to .json

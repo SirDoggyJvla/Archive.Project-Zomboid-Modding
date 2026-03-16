@@ -1,4 +1,5 @@
 {
+    "$schema": "/home/simon/Documents/Repositories/pz-translation-data/PZ_Translation_Schemas/Mod.schema.json",
     "name": "Example mod: Translation (EN)",
     "description": "Translation mod description (EN)"
 }
